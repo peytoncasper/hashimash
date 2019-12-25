@@ -1,4 +1,5 @@
-config/*
-terraform.tfstate
-terraform.tfstate.backup
+terraform/config/*
+terraform/terraform.tfstate*
 terraform/.terraform
+terraform/terraform.tfvars
+terraform/.terraform.tfstate.lock.info
