@@ -10,19 +10,19 @@ provider "google" {
 }
 
 provider "helm" {
-  # kubernetes {
-  #   config_path = file("config/kubeconfig.yaml")
-  # }
   kubernetes {
-    host                   = module.gcp.endpoint
-    username               = module.gcp.username
-    password               = module.gcp.password
-    insecure               = true
-    config_context         = "none"
-    # client_certificate     = module.gcp.client_certificate
-    # client_key             = module.gcp.client_key
-    # cluster_ca_certificate = module.gcp.cluster_ca_certificate
+    config_path = file("${path.module}/config/kubeconfig.yaml")
   }
+//  kubernetes {
+//    host                   = module.gcp.endpoint
+//    username               = module.gcp.username
+//    password               = module.gcp.password
+//    # insecure               = true
+//    config_context         = "none"
+//    client_certificate     = base64decode(module.gcp.client_certificate)
+//    client_key             = base64decode(module.gcp.client_key)
+//    cluster_ca_certificate = base64decode(module.gcp.cluster_ca_certificate)
+//  }
 }
 
 # module "azure" {

@@ -9,12 +9,12 @@ resource "helm_release" "example" {
   chart      = "consul"
   version    = "3.9.4"
 
-#   values = [
-#     "${file("values.yaml")}"
-#   ]
+  values = [
+    file("${path.module}/values.yaml")
+  ]
 
   set {
-    name  = "replicas"
+    name  = "Replicas"
     value = "1"
   }
 
