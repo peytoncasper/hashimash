@@ -4,7 +4,7 @@
       "name": "gcr.io/cloud-builders/go",
       "env": [
         "GO111MODULE=on",
-        "PROJECT_ROOT=delivery-api"
+        "PROJECT_ROOT=complexity-inc/delivery-api"
       ],
       "args": [
         "install",
