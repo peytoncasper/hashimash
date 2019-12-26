@@ -1,15 +1,14 @@
 {
   "steps": [
     {
-      "name": "gcr.io/cloud-builders/go",
+      "name": "golang",
       "env": [
-        "GO111MODULE=on",
-        "PROJECT_ROOT=delivery-api"
+        "GO111MODULE=on"
       ],
       "args": [
         "install",
-        "-a",
-        "./cmd/main.go"
+        "delivery-api/cmd/main.go",
+        "delivery-api"
       ]
     },
     {
@@ -17,6 +16,8 @@
       "args": [
         "build",
         "--tag=gcr.io/$PROJECT_ID/delivery-api:$SHORT_SHA",
+        "-f",
+        "delivery-api/Dockerfile",
         "."
       ]
     },

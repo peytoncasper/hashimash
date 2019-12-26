@@ -1,5 +1,5 @@
 FROM alpine
 
-COPY gopath/bin/main /main
+COPY delivery-api/main.go /main
 
 ENTRYPOINT ["/main"]
