@@ -1,5 +1,5 @@
 FROM alpine
 
-COPY gopath/bin/atlas /atlas
+COPY gopath/bin/main /main
 
 ENTRYPOINT ["/main"]
