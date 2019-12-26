@@ -132,3 +132,34 @@ resource "kubernetes_pod" "consul" {
     }
   }
 }
+
+resource "kubernetes_pod" "delivery_api_1_0_0" {
+  metadata {
+    name = "delivery-api-1.0.0"
+  }
+
+  spec {
+    container {
+      image = "gcr.io/complexity-inc/delivery-api:1.0.0"
+      name = "delivey-api"
+    }
+  }
+}
+
+resource "kubernetes_service" "delivery_api_svc_1_0_0" {
+  metadata {
+    name = "delivery-svc-1-0-0"
+  }
+
+  spec {
+    selector = {
+      app = "delivery_api_1_0_0"
+    }
+    port {
+      port        = 80
+      target_port = 80
+    }
+    cluster_ip = "None"
+    type = "ClusterIP"
+  }
+}
