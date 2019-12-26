@@ -1,0 +1,35 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/go",
+      "env": [
+        "GO111MODULE=on",
+        "PROJECT_ROOT=delivery-api"
+      ],
+      "args": [
+        "install",
+        "-a",
+        "cmd/main.go"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "args": [
+        "build",
+        "--tag=gcr.io/$PROJECT_ID/delivery-api:$SHORT_SHA",
+        "."
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker:18.09.6",
+      "args": [
+        "tag",
+        "gcr.io/$PROJECT_ID/delivery-api:$SHORT_SHA",
+        "gcr.io/$PROJECT_ID/delivery-api:1.0.0"
+      ]
+    }
+  ],
+  "images": [
+    "gcr.io/$PROJECT_ID/delivery-api:1.0.0"
+  ]
+}
