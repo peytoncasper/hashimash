@@ -9,7 +9,7 @@
       "args": [
         "install",
         "-a",
-        "delivery-api/cmd/main.go"
+        "cmd/main.go"
       ]
     },
     {
