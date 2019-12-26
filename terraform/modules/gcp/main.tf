@@ -17,6 +17,7 @@ resource "google_container_cluster" "orchestrated_complexity" {
       issue_client_certificate = true
     }
   }
+
 }
 
 resource "google_container_node_pool" "orchestrated_complexity" {
@@ -27,7 +28,7 @@ resource "google_container_node_pool" "orchestrated_complexity" {
 
   node_config {
     preemptible  = true
-    machine_type = "e2-small"
+    machine_type = "e2-medium"
 
     metadata = {
       disable-legacy-endpoints = "true"
@@ -37,7 +38,27 @@ resource "google_container_node_pool" "orchestrated_complexity" {
       "https://www.googleapis.com/auth/logging.write",
       "https://www.googleapis.com/auth/monitoring",
     ]
+    tags = ["orchestrated-complexity"]
   }
+}
+
+resource "google_compute_firewall" "consul" {
+  name    = "consul-firewall"
+  network = "default"
+
+  source_ranges = ["0.0.0.0/0"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8500", "8300", "8301", "8302"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["8300", "8301", "8302"]
+  }
+
+  target_tags = ["orchestrated-complexity"]
 }
 
 resource "template_dir" "config" {

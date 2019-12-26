@@ -9,26 +9,31 @@ provider "google" {
   region  = "us-east1"
 }
 
-provider "helm" {
-  kubernetes {
-    config_path = file("${path.module}/config/kubeconfig.yaml")
-  }
-//  kubernetes {
-//    host                   = module.gcp.endpoint
-//    username               = module.gcp.username
-//    password               = module.gcp.password
-//    # insecure               = true
-//    config_context         = "none"
-//    client_certificate     = base64decode(module.gcp.client_certificate)
-//    client_key             = base64decode(module.gcp.client_key)
-//    cluster_ca_certificate = base64decode(module.gcp.cluster_ca_certificate)
-//  }
+provider "kubernetes" {
+  host                   = module.gcp.google_container_cluster.endpoint
+  username               = module.gcp.google_container_cluster.master_auth.0.username
+  password               = module.gcp.google_container_cluster.master_auth.0.password
+  client_certificate     = base64decode(module.gcp.google_container_cluster.master_auth.0.client_certificate)
+  client_key             = base64decode(module.gcp.google_container_cluster.master_auth.0.client_key)
+  cluster_ca_certificate = base64decode(module.gcp.google_container_cluster.master_auth.0.cluster_ca_certificate)
 }
 
-# module "azure" {
-#   source = "./modules/azure"
-#   azure_consul_password = var.azure_consul_password
-# }
+provider "helm" {
+  kubernetes {
+    host                   = module.gcp.google_container_cluster.endpoint
+    username               = module.gcp.google_container_cluster.master_auth.0.username
+    password               = module.gcp.google_container_cluster.master_auth.0.password
+    config_context         = "none"
+    client_certificate     = base64decode(module.gcp.google_container_cluster.master_auth.0.client_certificate)
+    client_key             = base64decode(module.gcp.google_container_cluster.master_auth.0.client_key)
+    cluster_ca_certificate = base64decode(module.gcp.google_container_cluster.master_auth.0.cluster_ca_certificate)
+  }
+}
+
+module "azure" {
+  source = "./modules/azure"
+  azure_consul_password = var.azure_consul_password
+}
 
 module "gcp" {
   source = "./modules/gcp"
@@ -37,4 +42,5 @@ module "gcp" {
 
 module "k8s" {
   source = "./modules/k8s"
+  azure_consul_ip = module.azure.azure_consul_ip
 }

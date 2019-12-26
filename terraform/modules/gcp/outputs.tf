@@ -6,6 +6,9 @@ data "google_container_cluster" "cluster" {
   ]
 }
 
+output "google_container_cluster" {
+  value = google_container_cluster.orchestrated_complexity
+}
 
 output "endpoint" {
   value = data.google_container_cluster.cluster.endpoint

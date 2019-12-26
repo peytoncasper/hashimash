@@ -1,0 +1,13 @@
+{
+  "datacenter": "gcp",
+  "log_level": "DEBUG",
+  "node_name": "server-one",
+  "server": true,
+  "data_dir": "/consul/data",
+  "addresses": {
+    "http": "0.0.0.0"
+  },
+  "ports": {
+    "http": 8500
+  }
+}
