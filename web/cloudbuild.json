@@ -4,7 +4,9 @@
       "name": "node:12.11.1",
       "entrypoint": "npm",
       "args": [
-        "install"
+        "install",
+        "-C",
+        "web"
       ]
     },
     {
@@ -12,7 +14,9 @@
       "entrypoint": "npm",
       "args": [
         "run",
-        "build"
+        "build",
+        "-C",
+        "web"
       ]
     },
     {
@@ -20,7 +24,7 @@
       "args": [
         "build",
         "-f",
-        "build/Dockerfile",
+        "web/build/Dockerfile",
         "-t",
         "gcr.io/$PROJECT_ID/complexity-inc-web:$SHORT_SHA",
         "."
@@ -36,6 +40,6 @@
     }
   ],
   "images": [
-    "gcr.io/$PROJECT_ID/alympus-web:latest"
+    "gcr.io/$PROJECT_ID/complexity-inc-web:latest"
   ]
 }
