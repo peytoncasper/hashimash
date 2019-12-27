@@ -1,0 +1,43 @@
+{
+  "builders": [
+    {
+      "type": "docker",
+      "image": "nginx:1.17.6",
+      "commit": "true",
+      "pull": "true",
+      "changes": [
+        "ENTRYPOINT [\"nginx\", \"-g\", \"daemon off;\"]"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "web",
+      "destination": "/tmp"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "apt-get update",
+        "apt-get install -y curl",
+        "curl -sL https://deb.nodesource.com/setup_13.x | bash -",
+        "apt-get install -y nodejs",
+        "cd /tmp/web",
+        "npm install",
+        "npm run build",
+        "cp nginx.conf /etc/nginx/nginx.conf",
+        "cp public/* /usr/share/nginx/html"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "complexity-inc-web",
+        "tag": "1.0.0"
+      }
+    ]
+  ]
+}

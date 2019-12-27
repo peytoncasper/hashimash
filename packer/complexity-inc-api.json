@@ -1,0 +1,39 @@
+{
+  "builders": [
+    {
+      "type": "docker",
+      "image": "golang:1.13.5",
+      "commit": "true",
+      "pull": "true",
+      "changes": [
+        "ONBUILD mkdir /go/src/delivery-api",
+        "WORKDIR /go/src/delivery-api",
+        "ENV GO111MODULE on",
+        "ENTRYPOINT [\"main\"]"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "delivery-api/",
+      "destination": "/go/src/delivery-api"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "cd /go/src/delivery-api",
+        "go install -a -v cmd/main.go"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "complexity-inc-api",
+        "tag": "1.0.0"
+      }
+    ]
+  ]
+}
