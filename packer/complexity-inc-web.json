@@ -35,8 +35,11 @@
     [
       {
         "type": "docker-tag",
-        "repository": "complexity-inc-web",
+        "repository": "gcr.io/complexity-inc/complexity-inc-web",
         "tag": "1.0.0"
+      },
+      {
+        "type": "docker-push"
       }
     ]
   ]

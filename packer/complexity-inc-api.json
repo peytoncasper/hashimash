@@ -6,8 +6,8 @@
       "commit": "true",
       "pull": "true",
       "changes": [
-        "ONBUILD mkdir /go/src/delivery-api",
-        "WORKDIR /go/src/delivery-api",
+        "ONBUILD mkdir /go/src/api",
+        "WORKDIR /go/src/api",
         "ENV GO111MODULE on",
         "ENTRYPOINT [\"main\"]"
       ]
@@ -16,13 +16,13 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "delivery-api/",
-      "destination": "/go/src/delivery-api"
+      "source": "api/",
+      "destination": "/go/src/api"
     },
     {
       "type": "shell",
       "inline": [
-        "cd /go/src/delivery-api",
+        "cd /go/src/api",
         "go install -a -v cmd/main.go"
       ]
     }
@@ -31,8 +31,11 @@
     [
       {
         "type": "docker-tag",
-        "repository": "complexity-inc-api",
+        "repository": "gcr.io/complexity-inc/complexity-inc-api",
         "tag": "1.0.0"
+      },
+      {
+        "type": "docker-push"
       }
     ]
   ]
