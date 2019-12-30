@@ -1,0 +1,21 @@
+{
+  "services": [
+    {
+      "name": "api",
+      "tags": ["api", "1.0.0"],
+      "port": 80,
+      "address": "complexity-inc-api-svc.default.svc.cluster.local",
+      "checks": [
+        {
+          "id": "api",
+          "name": "HTTP API on port 80",
+          "http": "http://complexity-inc-api-svc.default.svc.cluster.local/version",
+          "tls_skip_verify": true,
+          "method": "GET",
+          "interval": "10s",
+          "timeout": "1s"
+        }
+      ]
+    }
+  ]
+}

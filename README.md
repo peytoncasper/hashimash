@@ -1,0 +1,1 @@
+terraform import module.k8s.kubernetes_config_map.kube_dns kube-system/kube-dns

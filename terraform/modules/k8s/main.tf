@@ -4,7 +4,8 @@ resource "kubernetes_config_map" "consul_config" {
   }
 
   data = {
-    "config.json" = file("${path.module}/config.json")
+    "config.json" = file("${path.module}/config.json"),
+    "services.json" = file("${path.module}/services.json")
   }
 
 }
@@ -12,6 +13,7 @@ resource "kubernetes_config_map" "consul_config" {
 resource "kubernetes_persistent_volume_claim" "consul_data" {
   metadata {
     name = "consul-data"
+
   }
   spec {
     access_modes = ["ReadWriteOnce"]
@@ -27,6 +29,9 @@ resource "kubernetes_persistent_volume_claim" "consul_data" {
 resource "kubernetes_pod" "consul" {
   metadata {
     name = "consul"
+    labels = {
+      app = "consul"
+    }
   }
 
   spec {
@@ -34,15 +39,9 @@ resource "kubernetes_pod" "consul" {
       image = "consul"
       name = "consul"
       command = [
-        "consul",
-        "agent",
-        "-bootstrap-expect=1",
-        "-client=0.0.0.0",
-        "-bind=0.0.0.0",
-        "-config-dir=/consul/userconfig/config.json",
-        "-ui",
-        "-server",
-        "-retry-join-wan=$(AZURE_CONSUL_IP)"
+        "/bin/sh",
+        "-ec",
+        "PUBLIC_IP=$(curl https://ipinfo.io/ip); exec /bin/consul agent -bootstrap-expect=1 -bind=0.0.0.0 -advertise=$PUBLIC_IP -advertise-wan=$PUBLIC_IP -config-dir=/consul/userconfig -retry-join-wan=$(AZURE_CONSUL_IP) -server -ui",
       ]
       env {
         name = "HOST_IP"
@@ -80,6 +79,18 @@ resource "kubernetes_pod" "consul" {
         name = "serverudp"
         container_port = 8300
         host_port = 8300
+        protocol = "UDP"
+      }
+      port {
+        name = "dns-tcp"
+        container_port = 8600
+        host_port = 8600
+        protocol = "TCP"
+      }
+      port {
+        name = "dns-udp"
+        container_port = 8600
+        host_port = 8600
         protocol = "UDP"
       }
       port {
@@ -133,33 +144,139 @@ resource "kubernetes_pod" "consul" {
   }
 }
 
-resource "kubernetes_pod" "delivery_api_1_0_0" {
+resource "kubernetes_service" "consul_svc" {
   metadata {
-    name = "delivery-api-1.0.0"
-  }
-
-  spec {
-    container {
-      image = "gcr.io/complexity-inc/delivery-api:1.0.0"
-      name = "delivey-api"
-    }
-  }
-}
-
-resource "kubernetes_service" "delivery_api_svc_1_0_0" {
-  metadata {
-    name = "delivery-svc-1-0-0"
+    name = "consul"
   }
 
   spec {
     selector = {
-      app = "delivery_api_1_0_0"
+      app = "consul"
+    }
+    port {
+      name = "dns-tcp"
+      port        = 8600
+      target_port = 8600
+      protocol = "TCP"
+    }
+    port {
+      name = "dns-udp"
+      port        = 8600
+      target_port = 8600
+      protocol = "UDP"
+    }
+    cluster_ip = "None"
+  }
+}
+
+resource "kubernetes_service" "consul_dns" {
+  metadata {
+    name = "consul-dns"
+  }
+
+  spec {
+    selector = {
+      app = "consul"
+    }
+    port {
+      name = "dns-tcp"
+      port        = 53
+      target_port = "dns-tcp"
+      protocol = "TCP"
+    }
+    port {
+      name = "dns-udp"
+      port        = 53
+      target_port = "dns-udp"
+      protocol = "UDP"
+    }
+    type = "ClusterIP"
+  }
+}
+
+resource "kubernetes_config_map" "kube_dns" {
+  metadata {
+    name = "kube-dns"
+    namespace = "kube-system"
+    labels = {
+      "addonmanager.kubernetes.io/mode" = "EnsureExists"
+    }
+  }
+
+  data = {
+    "stubDomains" = format("{\"consul\": [\"%s\"]}", "consul-dns.default.svc.cluster.local")
+  }
+}
+
+
+resource "kubernetes_pod" "complexity_inc_web" {
+  metadata {
+    name = "complexity-inc-web"
+  }
+
+  spec {
+    container {
+      image = "gcr.io/complexity-inc/complexity-inc-web:1.0.0"
+      name = "complexity-inc-web"
+    }
+  }
+}
+
+resource "kubernetes_pod" "complexity_inc_api" {
+  metadata {
+    name = "complexity-inc-api"
+    labels = {
+      app = "complexity-inc-api"
+    }
+  }
+
+  spec {
+    container {
+      image = "gcr.io/complexity-inc/complexity-inc-api:1.0.0"
+      name = "complexity-inc-api"
+      env {
+        name = "version"
+        value = "1.0.0"
+      }
+      port {
+        name = "http"
+        container_port = 80
+        protocol = "TCP"
+      }
+    }
+  }
+}
+
+resource "kubernetes_service" "complexity_inc_api_svc" {
+  metadata {
+    name = "complexity-inc-api-svc"
+  }
+
+  spec {
+    selector = {
+      app = "complexity-inc-api"
     }
     port {
       port        = 80
       target_port = 80
     }
-    cluster_ip = "None"
     type = "ClusterIP"
   }
 }
+//
+//resource "kubernetes_service" "complexity_inc_web" {
+//  metadata {
+//    name = "complexity-inc-web-svc"
+//  }
+//
+//  spec {
+//    selector = {
+//      app = "complexity-inc-web"
+//    }
+//    port {
+//      port        = 80
+//      target_port = 80
+//    }
+//    type = "LoadBalancer"
+//  }
+//}

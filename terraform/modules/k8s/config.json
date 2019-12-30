@@ -1,9 +1,11 @@
 {
   "datacenter": "gcp",
-  "log_level": "DEBUG",
+  "primary_datacenter": "gcp",
+  "log_level": "INFO",
   "node_name": "server-one",
   "server": true,
   "data_dir": "/consul/data",
+  "translate_wan_addrs": true,
   "addresses": {
     "http": "0.0.0.0"
   },

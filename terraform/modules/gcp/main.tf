@@ -51,12 +51,12 @@ resource "google_compute_firewall" "consul" {
 
   allow {
     protocol = "tcp"
-    ports    = ["8500", "8300", "8301", "8302"]
+    ports    = ["8600", "8500", "8300", "8301", "8302"]
   }
 
   allow {
     protocol = "udp"
-    ports    = ["8300", "8301", "8302"]
+    ports    = ["8600", "8300", "8301", "8302"]
   }
 
   target_tags = ["orchestrated-complexity"]
