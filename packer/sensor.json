@@ -1,0 +1,45 @@
+{
+  "builders": [
+    {
+      "type": "googlecompute",
+      "image_name": "sensor",
+      "account_file": "credentials/hashi.json",
+      "project_id": "complexity-inc",
+      "source_image": "ubuntu-1604-xenial-v20191217",
+      "ssh_username": "packer",
+      "zone": "us-east1-c",
+      "machine_type": "e2-small"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "sensor",
+      "destination": "/home/packer/sensor"
+    },
+    {
+      "type": "file",
+      "source": "packer/conf/named.conf.options",
+      "destination": "/tmp/named.conf.options"
+    },
+    {
+      "type": "file",
+      "source": "packer/conf/consul.conf",
+      "destination": "/tmp/consul.conf"
+    },
+    {
+      "type": "shell",
+      "script": "packer/scripts/setup_sensor.sh"
+    },
+    {
+      "type": "file",
+      "source": "packer/conf/nomad-server.conf",
+      "destination": "/etc/nomad/nomad-server.conf"
+    },
+    {
+      "type": "file",
+      "source": "packer/conf/consul-server.conf",
+      "destination": "/etc/consul.d/consul-server.conf"
+    }
+  ]
+}

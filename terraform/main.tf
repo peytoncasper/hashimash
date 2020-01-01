@@ -5,8 +5,9 @@ provider "azurerm" {
 
 provider "google" {
   project = var.gcp_project
-  credentials = file("credentials/terraform.json")
+  credentials = file(var.gcp_service_account_path)
   region  = "us-east1"
+  zone    = "us-east1-c"
 }
 
 provider "kubernetes" {
@@ -29,18 +30,30 @@ provider "helm" {
     cluster_ca_certificate = base64decode(module.gcp.google_container_cluster.master_auth.0.cluster_ca_certificate)
   }
 }
-
-module "azure" {
-  source = "./modules/azure"
-  azure_consul_password = var.azure_consul_password
-}
+//module "azure" {
+//  source = "./modules/azure"
+//  azure_consul_password = var.azure_consul_password
+//}
 
 module "gcp" {
   source = "./modules/gcp"
   google_kubernetes_engine_password = var.google_kubernetes_engine_password
 }
 
-module "k8s" {
-  source = "./modules/k8s"
-  azure_consul_ip = module.azure.azure_consul_ip
+module "consul" {
+  source = "./modules/consul"
+  orchestrated_complexity_cluster_id = module.gcp.google_container_cluster.id
 }
+
+module "api" {
+  source = "./modules/api"
+}
+
+module "sensors" {
+  source = "./modules/sensors"
+  consul_instance_group = module.gcp.instance_group
+}
+//
+//output "consul_ip_addresses" {
+//  value = module.gcp.gcp_consul_server_ip_addresses
+//}

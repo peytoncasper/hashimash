@@ -6,6 +6,14 @@ data "google_container_cluster" "cluster" {
   ]
 }
 
+data "google_compute_instance_group" "instance_group" {
+  self_link = google_container_node_pool.orchestrated_complexity.instance_group_urls[0]
+}
+
+output "instance_group" {
+  value = google_container_node_pool.orchestrated_complexity.instance_group_urls[0]
+}
+
 output "google_container_cluster" {
   value = google_container_cluster.orchestrated_complexity
 }
@@ -39,3 +47,4 @@ output "cluster_ca_certificate" {
       data.google_container_cluster.cluster.master_auth
   ]
 }
+

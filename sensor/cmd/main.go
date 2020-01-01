@@ -48,11 +48,15 @@ func main() {
 		if err != nil {
 			log.Print("Error encoding sensor reading: ", err)
 		} else {
-			_, _ = http.Post(
+			_, err := http.Post(
 				apiUrl+"/sensor",
 				"application/json",
 				bytes.NewBuffer(b),
 			)
+			if err != nil {
+				log.Print("Error sending sensor data: ", err)
+			}
+			//log.Print(resp.Status)
 		}
 
 		time.Sleep(1 * time.Second)

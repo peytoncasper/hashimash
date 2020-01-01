@@ -13,3 +13,7 @@ variable "azure_consul_password" {
 variable "google_kubernetes_engine_password" {
   type = string
 }
+
+variable "gcp_service_account_path" {
+  type = string
+}

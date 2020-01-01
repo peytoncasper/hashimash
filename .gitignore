@@ -1,10 +1,12 @@
+.terraform
+terraform.tfvars
 terraform/config/*
 terraform/terraform.tfstate*
 terraform/.terraform
-terraform/terraform.tfvars
 terraform/.terraform.tfstate.lock.info
 terraform/credentials/*
 web/.idea
 web/node_modules
 web/package-lock.json
 .idea
+credentials/*
