@@ -32,16 +32,24 @@ func handleSensor(w http.ResponseWriter, r *http.Request, version string, sensor
 		sensorReading[0].ApiVersion = version
 		sensorReading[1].ApiVersion = version
 
-		sensorRepository.UpdateLocation(sensorReading)
+		err := sensorRepository.UpdateLocation(sensorReading)
+		if err != nil {
+			// TODO: Handle error updating sensor data
+			return
+		}
 	}
 
 	_ = response.SensorSuccess(w)
 }
 
 func getSensorData(w http.ResponseWriter, r *http.Request, sensorRepository *repository.ConsulSensorRepository) {
-	sensorData := sensorRepository.GetSensorData()
+	sensorData, err := sensorRepository.GetSensorData()
+	if err != nil {
+		// TODO: Handle error getting sensor data
+		return
+	}
 
-	err := response.SensorData(w, sensorData)
+	err = response.SensorData(w, sensorData)
 	if err != nil {
 		// TODO: Handle error sending reponse
 	}

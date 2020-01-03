@@ -5,6 +5,7 @@ import (
 	"delivery-api/internal/model"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -26,6 +27,12 @@ type ConsulGetResponse struct {
 	Session     string `json:"Session"`
 }
 
+type KeyNotFoundError struct{}
+
+func (e *KeyNotFoundError) Error() string {
+	return fmt.Sprintf("key not found in consul")
+}
+
 func NewConsulSensorRepository() *ConsulSensorRepository {
 	return &ConsulSensorRepository{
 		Host: "localhost",
@@ -33,143 +40,79 @@ func NewConsulSensorRepository() *ConsulSensorRepository {
 	}
 }
 
-func (r *ConsulSensorRepository) UpdateLocation(sensorReadings []model.SensorReading) {
+func (r *ConsulSensorRepository) UpdateLocation(sensorReadings []model.SensorReading) error {
+	id := sensorReadings[0].Id
 
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
-
-	b, err := json.Marshal(sensorReadings)
-
-	request, err := http.NewRequest(
-		http.MethodPut,
-		"http://"+r.Host+":"+r.Port+"/v1/kv/"+sensorReadings[0].Id,
-		bytes.NewBuffer(b),
-	)
-	request.Header.Set("Content-Type", "application/json")
-
-	_, err = client.Do(request)
-
+	serializedReadings, err := json.Marshal(sensorReadings)
 	if err != nil {
-		log.Print("Error saving sensor reading: ", err)
+		log.Print("Error serializing sensor readings")
+		return err
 	}
-	updateIndex(r.Host, r.Port, sensorReadings[0].Id)
+
+	err = r.Save(id, string(serializedReadings))
+	if err != nil {
+		return err
+	}
+
+	err = r.UpdateIndex(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (r *ConsulSensorRepository) GetSensorData() map[string][]model.SensorReading {
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
-
-	request, err := http.NewRequest(
-		http.MethodGet,
-		"http://"+r.Host+":"+r.Port+"/v1/kv/sensorIndex",
-		nil,
-	)
-	resp, err := client.Do(request)
-
-	if err != nil {
-		log.Print("Error getting Sensor Index: ", err)
-	}
-
-	decoder := json.NewDecoder(resp.Body)
-
-	var sensorIndex []string
-	err = decoder.Decode(&sensorIndex)
-	if err != nil {
-		log.Print("Error decoding sensor index body: ", err)
-	}
-
+func (r *ConsulSensorRepository) GetSensorData() (map[string][]model.SensorReading, error) {
 	sensorReadings := make(map[string][]model.SensorReading)
 
-	for i := range sensorIndex {
-		id := sensorIndex[i]
-
-		client := http.Client{
-			Timeout: 5 * time.Second,
-		}
-
-		request, err := http.NewRequest(
-			http.MethodGet,
-			"http://"+r.Host+":"+r.Port+"/v1/kv/"+id,
-			nil,
-		)
-		resp, err := client.Do(request)
-
-		if err != nil {
-			log.Print("Error getting Sensor Index: ", err)
-		}
-
-		decoder := json.NewDecoder(resp.Body)
-
-		var sensorReading []model.SensorReading
-		err = decoder.Decode(&sensorIndex)
-		if err != nil {
-			log.Print("Error decoding sensor index body: ", err)
-		}
-		sensorReadings[id] = sensorReading
+	index, err := r.GetIndex()
+	if err != nil {
+		return sensorReadings, err
 	}
 
-	return sensorReadings
+	for _, v := range index {
+		var sensorReading []model.SensorReading
+		response, err := r.Get(v)
+		if err != nil {
+			return sensorReadings, err
+		}
+
+		sensorReadingString, err := base64.StdEncoding.DecodeString(response[0].Value)
+		if err != nil {
+			log.Print("Error base64 decoding sensor reading: ", err)
+			return sensorReadings, err
+		}
+
+		decoder := json.NewDecoder(bytes.NewReader(sensorReadingString))
+		err = decoder.Decode(&sensorReading)
+		if err != nil {
+			log.Print("Error json decoding sensor reading: ", err)
+			return sensorReadings, err
+		}
+
+		sensorReadings[sensorReading[0].Id] = sensorReading
+	}
+
+	return sensorReadings, nil
 }
 
-func updateIndex(host string, port string, sensorId string) {
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
+func (r *ConsulSensorRepository) UpdateIndex(sensorId string) error {
 
-	request, err := http.NewRequest(
-		http.MethodGet,
-		"http://"+host+":"+port+"/v1/kv/sensorIndex",
-		nil,
-	)
-	resp, err := client.Do(request)
-
+	index, err := r.GetIndex()
 	if err != nil {
-		log.Print("Error getting Sensor Index: ", err)
+		return err
 	}
 
-	var consulResponse []ConsulGetResponse
-	var sensorIndex []string
-
-	if resp.StatusCode == 200 {
-		decoder := json.NewDecoder(resp.Body)
-
-		err = decoder.Decode(&consulResponse)
-		if err != nil {
-			log.Print("Error decoding consul response body: ", err)
-		}
-
-		sensorIndexString, err := base64.StdEncoding.DecodeString(consulResponse[0].Value)
-		if err != nil {
-			log.Print("Error converting vlaue from base64: ", err)
-		}
-
-		sensorIndex = strings.Split(string(sensorIndexString), ",")
-
-		if !contains(sensorIndex, sensorId) {
-			sensorIndex = append(sensorIndex, sensorId)
-		}
-	} else {
-		sensorIndex = append(sensorIndex, sensorId)
+	if !contains(index, sensorId) {
+		index = append(index, sensorId)
 	}
 
-	client = http.Client{
-		Timeout: 5 * time.Second,
-	}
-	request, err = http.NewRequest(
-		http.MethodPut,
-		"http://"+host+":"+port+"/v1/kv/sensorIndex",
-		bytes.NewBuffer([]byte(strings.Join(sensorIndex, ","))),
-	)
-	request.Header.Set("Content-Type", "application/json")
-
-	_, err = client.Do(request)
-
+	err = r.Save("sensorIndex", strings.Join(index, ","))
 	if err != nil {
-		log.Print("Error saving sensor index: ", err)
+		return err
 	}
 
+	return nil
 }
 
 func contains(index []string, key string) bool {
@@ -179,4 +122,88 @@ func contains(index []string, key string) bool {
 		}
 	}
 	return false
+}
+
+func (r *ConsulSensorRepository) GetIndex() ([]string, error) {
+
+	var sensorIndex []string
+
+	response, err := r.Get("sensorIndex")
+	if err != nil {
+		if _, ok := err.(*KeyNotFoundError); ok {
+			return []string{}, nil
+		}
+		return sensorIndex, err
+	}
+
+	indexBytes, err := base64.StdEncoding.DecodeString(response[0].Value)
+	if err != nil {
+		return sensorIndex, err
+	}
+
+	sensorIndex = strings.Split(string(indexBytes), ",")
+
+	return sensorIndex, nil
+}
+
+func (r *ConsulSensorRepository) Get(key string) ([]ConsulGetResponse, error) {
+	var consulResponse []ConsulGetResponse
+
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	request, err := http.NewRequest(
+		http.MethodGet,
+		"http://"+r.Host+":"+r.Port+"/v1/kv/"+key,
+		nil,
+	)
+
+	resp, err := client.Do(request)
+
+	if err != nil {
+		log.Print("Error performing Consul KV HTTP request: ", err)
+		return consulResponse, err
+	}
+
+	if resp.StatusCode == 404 {
+		log.Print("Key not found in Consul KV")
+		return consulResponse, &KeyNotFoundError{}
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+
+	err = decoder.Decode(&consulResponse)
+	if err != nil {
+		log.Print("Error consul KV response body: ", err)
+		return consulResponse, err
+	}
+
+	return consulResponse, nil
+}
+
+func (r *ConsulSensorRepository) Save(key string, value string) error {
+	client := http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	request, err := http.NewRequest(
+		http.MethodPut,
+		"http://"+r.Host+":"+r.Port+"/v1/kv/"+key,
+		strings.NewReader(value),
+	)
+
+	if err != nil {
+		log.Print("Error creating consul HTTP Put request: ", err)
+		return err
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	_, err = client.Do(request)
+
+	if err != nil {
+		log.Print("Error performing consul KV Put request: ", err)
+	}
+	return nil
 }
