@@ -12,15 +12,15 @@ import (
 )
 
 type Location struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X string `json:"x"`
+	Y string `json:"y"`
 }
 
-type Sensor struct {
-	Version string `json:"version"`
-	Id      string `json:"id"`
-	X       string `json:"x"`
-	Y       string `json:"y"`
+type SensorReading struct {
+	SensorVersion string   `json:"sensor_version"`
+	ApiVersion    string   `json:"api_version"`
+	Id            string   `json:"id"`
+	Location      Location `json:"location"`
 }
 
 func main() {
@@ -28,23 +28,35 @@ func main() {
 	id := os.Getenv("id")
 	apiUrl := os.Getenv("apiUrl")
 
+	xStart := os.Getenv("xStart")
+	yStart := os.Getenv("yStart")
+
 	loc := Location{
-		X: 0,
-		Y: 0,
+		X: xStart,
+		Y: yStart,
 	}
 
+	var payload [2]SensorReading
+
 	for {
+		payload[0] = SensorReading{
+			SensorVersion: version,
+			ApiVersion:    "",
+			Id:            id,
+			Location:      loc,
+		}
+
 		possibleMoves := calculatePossibleMoves(loc)
 		loc = move(possibleMoves)
 
-		sensor := Sensor{
-			Version: version,
-			Id:      id,
-			X:       strconv.Itoa(loc.X),
-			Y:       strconv.Itoa(loc.Y),
+		payload[1] = SensorReading{
+			SensorVersion: version,
+			ApiVersion:    "",
+			Id:            id,
+			Location:      loc,
 		}
 
-		b, err := json.Marshal(sensor)
+		b, err := json.Marshal(payload)
 		if err != nil {
 			log.Print("Error encoding sensor reading: ", err)
 		} else {
@@ -56,8 +68,9 @@ func main() {
 			if err != nil {
 				log.Print("Error sending sensor data: ", err)
 			}
-			//log.Print(resp.Status)
 		}
+
+		log.Print("Reading Sent: ", payload)
 
 		time.Sleep(1 * time.Second)
 	}
@@ -72,35 +85,39 @@ func move(possibleMoves []Location) Location {
 func calculatePossibleMoves(loc Location) []Location {
 	var moves []Location
 
+	x, _ := strconv.Atoi(loc.X)
+	y, _ := strconv.Atoi(loc.Y)
+
 	// Check if move east is valid
-	if loc.X-1 >= 0 {
+	if x-1 >= 0 {
+
 		moves = append(moves, Location{
-			X: loc.X - 1,
-			Y: loc.Y,
+			X: strconv.Itoa(x - 1),
+			Y: strconv.Itoa(y),
 		})
 	}
 
 	// Check if move west is valid
-	if loc.X+1 <= 8 {
+	if x+1 <= 2 {
 		moves = append(moves, Location{
-			X: loc.X + 1,
-			Y: loc.Y,
+			X: strconv.Itoa(x + 1),
+			Y: strconv.Itoa(y),
 		})
 	}
 
 	// Check if move north is valid
-	if loc.Y-1 >= 0 {
+	if y-1 >= 0 {
 		moves = append(moves, Location{
-			X: loc.X,
-			Y: loc.Y - 1,
+			X: strconv.Itoa(x),
+			Y: strconv.Itoa(y - 1),
 		})
 	}
 
 	// Check if move south is valid
-	if loc.Y+1 <= 8 {
+	if y+1 <= 2 {
 		moves = append(moves, Location{
-			X: loc.X,
-			Y: loc.Y + 1,
+			X: strconv.Itoa(x),
+			Y: strconv.Itoa(y + 1),
 		})
 	}
 

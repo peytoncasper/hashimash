@@ -14,31 +14,52 @@ func handleVersion(w http.ResponseWriter, r *http.Request, version string) {
 	_ = response.VersionSuccess(version, w)
 }
 
-func handleSensor(w http.ResponseWriter, r *http.Request, sensorRepository *repository.LocalSensorRepository) {
+func handleSensor(w http.ResponseWriter, r *http.Request, version string, sensorRepository *repository.ConsulSensorRepository) {
 	decoder := json.NewDecoder(r.Body)
 
-	var sensor model.Sensor
-	err := decoder.Decode(&sensor)
+	var sensorReading []model.SensorReading
+	err := decoder.Decode(&sensorReading)
 	if err != nil {
 		log.Print("Error reading Sensor data: ", err)
 	}
 
-	if sensor.Id != "" && sensor.Version != "" && sensor.X != "" && sensor.Y != "" {
-		sensorRepository.UpdateLocation(sensor)
+	// Data Validation
+	if (sensorReading[0].Id != "" && sensorReading[1].Id != "" && sensorReading[0].Id == sensorReading[1].Id) &&
+		(sensorReading[0].SensorVersion != "" && sensorReading[1].SensorVersion != "") &&
+		(sensorReading[0].Location.X != "" && sensorReading[1].Location.X != "") &&
+		(sensorReading[0].Location.Y != "" && sensorReading[1].Location.Y != "") {
+
+		sensorReading[0].ApiVersion = version
+		sensorReading[1].ApiVersion = version
+
+		sensorRepository.UpdateLocation(sensorReading)
 	}
 
 	_ = response.SensorSuccess(w)
 }
 
-func SensorRouter(version string, sensorRepository *repository.LocalSensorRepository) http.Handler {
+func getSensorData(w http.ResponseWriter, r *http.Request, sensorRepository *repository.ConsulSensorRepository) {
+	sensorData := sensorRepository.GetSensorData()
+
+	err := response.SensorData(w, sensorData)
+	if err != nil {
+		// TODO: Handle error sending reponse
+	}
+}
+
+func SensorRouter(version string, sensorRepository *repository.ConsulSensorRepository) http.Handler {
 	r := chi.NewRouter()
 
 	r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
 		handleVersion(w, r, version)
 	})
 
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		getSensorData(w, r, sensorRepository)
+	})
+
 	r.Post("/sensor", func(w http.ResponseWriter, r *http.Request) {
-		handleSensor(w, r, sensorRepository)
+		handleSensor(w, r, version, sensorRepository)
 	})
 
 	return r

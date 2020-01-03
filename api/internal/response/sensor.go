@@ -1,6 +1,7 @@
 package response
 
 import (
+	"delivery-api/internal/model"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -37,6 +38,21 @@ func SensorSuccess(w http.ResponseWriter) error {
 		},
 	}
 	bodyString, err := json.Marshal(body)
+	if err != nil {
+		log.Print("Error marshaling response", err)
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(bodyString)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func SensorData(w http.ResponseWriter, sensorData map[string][]model.SensorReading) error {
+	bodyString, err := json.Marshal(sensorData)
 	if err != nil {
 		log.Print("Error marshaling response", err)
 		return err
