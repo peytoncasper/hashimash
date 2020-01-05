@@ -20,10 +20,10 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(module.gcp.google_container_cluster.master_auth.0.cluster_ca_certificate)
 }
 
-//module "azure" {
-//  source = "./modules/azure"
-//  azure_consul_password = var.azure_consul_password
-//}
+module "azure" {
+  source = "./modules/azure"
+  azure_consul_password = var.azure_consul_password
+}
 
 module "gcp" {
   source = "./modules/gcp"
