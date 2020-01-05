@@ -1,0 +1,15 @@
+global:
+  enabled: true
+  tlsDisable: true
+
+server:
+  service:
+    enabled: true
+  dev:
+    enabled: true
+
+ui:
+  enabled: true
+  serviceType: "LoadBalancer"
+  serviceNodePort: null
+  externalPort: 8200

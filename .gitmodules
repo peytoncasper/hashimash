@@ -1,3 +1,6 @@
 [submodule "terraform/modules/consul/consul-helm-multi-dc"]
 	path = terraform/modules/consul/consul-helm-multi-dc
 	url = https://github.com/peytoncasper/consul-helm-multi-dc
+[submodule "terraform/modules/vault/vault-helm"]
+	path = terraform/modules/vault/vault-helm
+	url = https://github.com/hashicorp/vault-helm
