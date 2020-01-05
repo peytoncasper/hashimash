@@ -5,9 +5,8 @@ terraform/terraform.tfstate*
 terraform/.terraform
 terraform/.terraform.tfstate.lock.info
 terraform/credentials/*
-web/.idea
-web/node_modules
-web/package-lock.json
-web/public/index.js
+web/js/node_modules
+web/js/package-lock.json
+web/js/public/index.js
 .idea
 credentials/*
