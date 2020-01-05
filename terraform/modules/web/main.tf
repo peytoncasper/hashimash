@@ -1,8 +1,8 @@
 resource "kubernetes_pod" "web" {
   metadata {
-    name = "complexity-inc-web"
+    name = "web"
     labels = {
-      app = "complexity-inc-web"
+      app = "web"
     }
   }
 

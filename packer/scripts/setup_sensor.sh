@@ -13,15 +13,6 @@ sudo mkdir /var/named/dynamic
 sudo chown bind /var/named
 sudo chown bind /var/named/dynamic
 
-
-#sudo touch /etc/dnsmasq.d/dnsmasq.conf
-#sudo chown packer:packer /etc/dnsmasq.d/dnsmasq.conf
-#sudo echo "server=/consul/127.0.0.1#8600" > /etc/dnsmasq.d/dnsmasq.conf
-
-# Disable systemd-resolved
-#sudo systemctl disable systemd-resolved
-#sudo systemctl stop systemd-resolved
-
 # Install Nomad
 curl -o nomad.zip https://releases.hashicorp.com/nomad/0.10.2/nomad_0.10.2_linux_amd64.zip
 unzip nomad.zip

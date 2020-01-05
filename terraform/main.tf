@@ -50,3 +50,7 @@ module "sensors" {
   source = "./modules/sensors"
   consul_ext_ip = module.gcp.consul_ext_ip
 }
+
+output "web-ui" {
+  value = module.web.ip
+}

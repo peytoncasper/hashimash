@@ -1,4 +1,7 @@
 {
+  "variables": {
+    "google_project_id": null
+  },
   "builders": [
     {
       "type": "docker",
@@ -31,8 +34,8 @@
     [
       {
         "type": "docker-tag",
-        "repository": "gcr.io/complexity-inc/complexity-inc-api",
-        "tag": "1.0.0"
+        "repository": "gcr.io/{{user `google_project_id`}}/api",
+        "tag": "latest"
       },
       {
         "type": "docker-push"
