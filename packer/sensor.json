@@ -6,7 +6,7 @@
     {
       "type": "googlecompute",
       "image_name": "sensor",
-      "account_file": "credentials/hashi.json",
+      "account_file": "credentials/credentials.json",
       "project_id": "{{user `google_project_id`}}",
       "source_image": "ubuntu-1604-xenial-v20191217",
       "ssh_username": "packer",

@@ -10,3 +10,4 @@ web/js/package-lock.json
 web/js/public/index.js
 .idea
 credentials/*
+terraform.tfstate*
