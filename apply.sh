@@ -1,1 +1,0 @@
-terraform apply -target terraform
