@@ -1,3 +1,3 @@
-variable "consul_instance_group" {
+variable "consul_ext_ip" {
   type = string
 }

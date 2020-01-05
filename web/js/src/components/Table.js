@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import axios from "axios";
 
 export const Table = styled.table`
     border-spacing: 0px;
@@ -46,6 +47,21 @@ export const BinaryVersion = styled.td`
     background-color: #364A68;
 `;
 
+export const UpgradeButton = styled.button`
+    background: none;
+    color: white;
+    background-color: #425A7E;
+    border: none;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    width: 20px;
+    height: 20px;
+`;
+
 export const Location = styled.td`
     width: 81px;
     height: 37px;
@@ -53,6 +69,20 @@ export const Location = styled.td`
 
 
 class TableComponent extends React.Component {
+
+    upgrade(sensorData) {
+        axios.post("/api/upgrade",
+               sensorData
+            )
+            .then(function (response) {
+                this.setState({
+                    sensorData: response.data
+                })
+            }.bind(this))
+            .catch(function (error) {
+                console.log("Error upgrading sensor: ", error);
+            })
+    }
 
     constructor(props) {
         super(props);
@@ -92,6 +122,12 @@ class TableComponent extends React.Component {
                         <BinaryVersion>
                             <ColumnContainer style={{color: "#ffffff"}}>
                                 {this.props.sensorData[key][1]["sensor_version"]}
+                                {
+                                    this.props.sensorData[key][1]["sensor_version"] === "1.0.0" ?
+                                    <UpgradeButton onClick={() => {this.upgrade(this.props.sensorData[key])}}>
+                                        <i className="fas fa-arrow-up"></i>
+                                    </UpgradeButton> : null
+                                }
                             </ColumnContainer>
                         </BinaryVersion>
                         <Location>

@@ -25,7 +25,7 @@ class RootComponent extends React.Component {
   }
 
   fetchSensorData() {
-    axios.get("http://localhost")
+    axios.get("/api")
         .then(function (response) {
           this.setState({
             sensorData: response.data

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"delivery-api/internal/model"
+	"api/internal/model"
 )
 
 type LocalSensorRepository struct {

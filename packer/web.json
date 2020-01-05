@@ -2,32 +2,37 @@
   "builders": [
     {
       "type": "docker",
-      "image": "nginx:1.17.6",
+      "image": "golang:1.13.5",
       "commit": "true",
       "pull": "true",
       "changes": [
-        "ENTRYPOINT [\"nginx\", \"-g\", \"daemon off;\"]"
+        "ONBUILD mkdir /go/src/web",
+        "WORKDIR /go/src/web",
+        "ENV GO111MODULE on",
+        "ENTRYPOINT [\"main\"]"
       ]
     }
   ],
   "provisioners": [
     {
       "type": "file",
-      "source": "web",
-      "destination": "/tmp"
+      "source": "web/",
+      "destination": "/go/src/web"
     },
     {
       "type": "shell",
       "inline": [
+        "cd /go/src/web",
+        "go install cmd/main.go",
         "apt-get update",
         "apt-get install -y curl",
         "curl -sL https://deb.nodesource.com/setup_13.x | bash -",
         "apt-get install -y nodejs",
-        "cd /tmp/web",
+        "cd /go/src/web/js",
+        "npm rebuild node-sass",
         "npm install",
-        "npm run build",
-        "cp nginx.conf /etc/nginx/nginx.conf",
-        "cp public/* /usr/share/nginx/html"
+        "npm run build"
+
       ]
     }
   ],

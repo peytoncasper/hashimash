@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"api/internal/model"
 	"bytes"
-	"delivery-api/internal/model"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -33,9 +33,9 @@ func (e *KeyNotFoundError) Error() string {
 	return fmt.Sprintf("key not found in consul")
 }
 
-func NewConsulSensorRepository() *ConsulSensorRepository {
+func NewConsulSensorRepository(host string) *ConsulSensorRepository {
 	return &ConsulSensorRepository{
-		Host: "localhost",
+		Host: host,
 		Port: "8500",
 	}
 }
@@ -73,8 +73,11 @@ func (r *ConsulSensorRepository) GetSensorData() (map[string][]model.SensorReadi
 	for _, v := range index {
 		var sensorReading []model.SensorReading
 		response, err := r.Get(v)
+
+		//if _, ok := err.(*KeyNotFoundError); ok {
+		//}
 		if err != nil {
-			return sensorReadings, err
+			break
 		}
 
 		sensorReadingString, err := base64.StdEncoding.DecodeString(response[0].Value)
@@ -99,6 +102,7 @@ func (r *ConsulSensorRepository) GetSensorData() (map[string][]model.SensorReadi
 func (r *ConsulSensorRepository) UpdateIndex(sensorId string) error {
 
 	index, err := r.GetIndex()
+
 	if err != nil {
 		return err
 	}
@@ -153,9 +157,11 @@ func (r *ConsulSensorRepository) Get(key string) ([]ConsulGetResponse, error) {
 		Timeout: 5 * time.Second,
 	}
 
+	url := "http://" + r.Host + ":" + r.Port + "/v1/kv/" + key
+
 	request, err := http.NewRequest(
 		http.MethodGet,
-		"http://"+r.Host+":"+r.Port+"/v1/kv/"+key,
+		url,
 		nil,
 	)
 
@@ -167,7 +173,7 @@ func (r *ConsulSensorRepository) Get(key string) ([]ConsulGetResponse, error) {
 	}
 
 	if resp.StatusCode == 404 {
-		log.Print("Key not found in Consul KV")
+		log.Print("Key not found in Consul KV: ", url)
 		return consulResponse, &KeyNotFoundError{}
 	}
 

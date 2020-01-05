@@ -13,7 +13,6 @@ sudo mkdir /var/named/dynamic
 sudo chown bind /var/named
 sudo chown bind /var/named/dynamic
 
-sudo echo "nameserver 127.0.0.1" | sudo tee  /etc/resolv.conf > /dev/null
 
 #sudo touch /etc/dnsmasq.d/dnsmasq.conf
 #sudo chown packer:packer /etc/dnsmasq.d/dnsmasq.conf
@@ -29,7 +28,7 @@ unzip nomad.zip
 sudo mv nomad /usr/local/bin
 
 # Install consul
-curl -o consul.zip curl -o consul.zip https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip
+curl -o consul.zip https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip
 unzip consul.zip
 sudo mv consul /usr/local/bin
 

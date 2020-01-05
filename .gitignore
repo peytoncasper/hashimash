@@ -8,5 +8,6 @@ terraform/credentials/*
 web/.idea
 web/node_modules
 web/package-lock.json
+web/public/index.js
 .idea
 credentials/*

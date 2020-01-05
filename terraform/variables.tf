@@ -1,4 +1,4 @@
-variable "gcp_project" {
+variable "google_project_id" {
   type = string
 }
 

@@ -8,10 +8,16 @@ job "sensor" {
       config {
         command = "/main"
       }
-      env {
-        version = "$(SENSOR_VERSION)"
-        id = "$(SENSOR_ID)"
-        apiUrl = "$(SENSOR_API_URL)"
+      template {
+        data = <<EOH
+        api_host="{{key "sensor/api_host"}}"
+        version="{{key "sensor/version"}}"
+        id="{{key "sensor/id"}}"
+        x_start="{{key "sensor/x_start"}}"
+        y_start="{{key "sensor/y_start"}}"
+        EOH
+        env = true
+        destination = "local/env.txt"
       }
     }
   }

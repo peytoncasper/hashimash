@@ -57,21 +57,6 @@ resource "google_compute_firewall" "consul" {
   target_tags = ["orchestrated-complexity"]
 }
 
-//resource "template_dir" "config" {
-//  source_dir      = "${path.module}/templates"
-//  destination_dir = "${path.cwd}/config"
-//
-//  vars = {
-//    cluster_name    = google_container_cluster.orchestrated_complexity.name
-//    endpoint        = google_container_cluster.orchestrated_complexity.endpoint
-//    user_name       = google_container_cluster.orchestrated_complexity.master_auth.0.username
-//    user_password   = google_container_cluster.orchestrated_complexity.master_auth.0.password
-//    cluster_ca      = google_container_cluster.orchestrated_complexity.master_auth.0.cluster_ca_certificate
-//    client_cert     = google_container_cluster.orchestrated_complexity.master_auth.0.client_certificate
-//    client_cert_key = google_container_cluster.orchestrated_complexity.master_auth.0.client_key
-//  }
-//}
-
 resource "null_resource" "kubectl" {
   triggers = {
     cluster = google_container_cluster.orchestrated_complexity.id
@@ -91,9 +76,4 @@ resource "null_resource" "kubectl" {
     command    = "kubectl config get-clusters | grep ${google_container_cluster.orchestrated_complexity.name} | xargs -n1 kubectl config delete-cluster"
   }
 
-  provisioner "local-exec" {
-    when       = destroy
-    on_failure = continue
-    command    = "kubectl config get-contexts | grep ${google_container_cluster.orchestrated_complexity.name} | xargs -n1 kubectl config delete-context"
-  }
 }

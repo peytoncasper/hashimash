@@ -1,7 +1,7 @@
 package response
 
 import (
-	"delivery-api/internal/model"
+	"api/internal/model"
 	"encoding/json"
 	"log"
 	"net/http"

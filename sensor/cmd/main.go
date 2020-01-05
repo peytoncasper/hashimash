@@ -24,12 +24,16 @@ type SensorReading struct {
 }
 
 func main() {
+	// Set a time based seed value so that each instance
+	// generates its own sensor values
+	rand.Seed(time.Now().UnixNano())
+
 	version := os.Getenv("version")
 	id := os.Getenv("id")
-	apiUrl := os.Getenv("apiUrl")
+	apiHost := os.Getenv("api_host")
 
-	xStart := os.Getenv("xStart")
-	yStart := os.Getenv("yStart")
+	xStart := os.Getenv("x_start")
+	yStart := os.Getenv("y_start")
 
 	loc := Location{
 		X: xStart,
@@ -61,7 +65,7 @@ func main() {
 			log.Print("Error encoding sensor reading: ", err)
 		} else {
 			_, err := http.Post(
-				apiUrl+"/sensor",
+				"http://"+apiHost+"/sensor",
 				"application/json",
 				bytes.NewBuffer(b),
 			)

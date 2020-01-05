@@ -1,3 +1,3 @@
-variable "orchestrated_complexity_cluster_id" {
+variable "kubeconfig_created" {
   type = string
 }

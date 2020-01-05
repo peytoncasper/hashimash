@@ -1,46 +1,33 @@
-provider "template" {}
 
-data "google_compute_instance_group" "instance_group" {
-  self_link = var.consul_instance_group
-}
-
-data "google_compute_instance" "instances" {
-  for_each = data.google_compute_instance_group.instance_group.instances
-  self_link = each.value
-}
-
-data "null_data_source" "consul_ext_ips" {
-  inputs = {
-    values = join(",", [for instance in data.google_compute_instance.instances: instance.network_interface.0.access_config.0.nat_ip])
-  }
-}
-
-resource "google_compute_instance" "sensor-1" {
-  name         = "sensor-1"
+resource "google_compute_instance" "sensor" {
+  count        = 3
+  name         = "sensor-${count.index}"
   machine_type = "e2-micro"
   zone         = "us-east1-c"
 
-  tags = ["orchestrated-complexity","sensor-1"]
+  tags = ["orchestrated-complexity"]
 
   metadata_startup_script = <<EOF
-      export SENSOR_VERSION=1.0.0
-      export SENSOR_ID=1
-      export SENSOR_API_URL=http://api.service.gcp.consul
-      nohup sudo nomad agent -dev -config=/etc/nomad > /tmp/nomad.out 2> /tmp/nomad.err &
+      nohup sudo nomad agent -dev -config=/etc/nomad/nomad-server.conf > /tmp/nomad.out 2> /tmp/nomad.err &
       echo "nameserver 127.0.0.1" | sudo tee /etc/resolv.conf
       sleep 1
       nohup sudo consul agent \
         -server \
-        -datacenter=sensor-1 \
+        -datacenter=sensor-${count.index} \
         -bootstrap-expect=1 \
         -data-dir=/var/lib/consul \
-        -node=sensor-1 \
+        -node=sensor-${count.index} \
         -bind=0.0.0.0 \
         -client=0.0.0.0 \
-        -retry-join-wan=${data.null_data_source.consul_ext_ips.outputs["values"]} \
+        -retry-join-wan=${var.consul_ext_ip} \
         -advertise-wan=$(curl https://ipinfo.io/ip) \
         -config-dir=/etc/consul.d > /tmp/consul.out 2> /tmp/consul.err &
-      sleep 5
+      sleep 30
+      consul kv put sensor/api_host api.service.gcp.consul
+      consul kv put sensor/version 1.0.0
+      consul kv put sensor/id ${count.index}
+      consul kv put sensor/x_start 0
+      consul kv put sensor/y_start 0
       nomad job run /home/packer/sensor/sensor.nomad
     EOF
 

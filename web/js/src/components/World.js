@@ -42,41 +42,6 @@ class WorldComponent extends React.Component {
 
     componentDidMount() {
         this.init()
-        this.sensorDetails = [
-            {
-                "api": "1.0.0",
-                "sensor": "1.0.0",
-                "upgradeAvailable": true,
-                "location": {
-                    "past": [0,0],
-                    "current": {
-                        "x": 0,
-                        "y": 0
-                    },
-                    "future": {
-                        "x": 1,
-                        "y": 0
-                    }
-                }
-            },
-            // {
-            //     "api": "1.0.0",
-            //     "sensor": "1.0.0",
-            //     "upgradeAvailable": true,
-            //     "location": [
-            //         [2,2],
-            //         [2,2],
-            //         [2,1]
-            //     ],
-            // },
-            // {
-            //     "api": "1.0.0",
-            //     "sensor": "1.0.0",
-            //     "upgradeAvailable": true,
-            //     "x": 0,
-            //     "y": 0
-            // }
-        ]
     }
 
     // https://stackoverflow.com/questions/14757659/loading-an-image-onto-a-canvas-with-javascript
@@ -114,7 +79,7 @@ class WorldComponent extends React.Component {
         let canvasHeight = 500;
 
 
-        let renderBegin = performance.now();
+        // let renderBegin = performance.now();
 
         let l1 = document.getElementById("layer1");
 
@@ -153,13 +118,7 @@ class WorldComponent extends React.Component {
         let x = 0;
         let y = 0;
 
-        // currentX = history[t][0];
-        // currentY = history[t][1];
-        // futureX = history[t + 1][0];
-        // futureY = history[t + 1][1];
-
-
-
+        // TODO: Replace lookup tables with an algo/math
         let spriteMapAnimation = {
             "0001": "bus_01",
             "0010": "bus_03",
@@ -236,15 +195,9 @@ class WorldComponent extends React.Component {
             layer1.drawImage(this.tiles[spriteMapAnimation[spriteMapKey]], vehicleXOffset + (x * 32) + (y * 32), vehicleYOffset + (x * 18.5) + (y * 18.5), 48, 48);
         })
 
+        // let renderEnd = performance.now();
 
-
-
-
-
-
-        let renderEnd = performance.now();
-
-        let timeElapsed = renderEnd - renderBegin;
+        // let timeElapsed = renderEnd - renderBegin;
         // console.log("Render Finished. Time Taken: " + timeElapsed + "ms");
     }
 
