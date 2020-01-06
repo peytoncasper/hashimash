@@ -1,5 +1,7 @@
-![alt-text](docs/example.gif)
+<p align="center">
+# Hashimash
 <img align="center" src="docs/example.gif" alt="example">
+</p>
 
 # Prerequisites
 
