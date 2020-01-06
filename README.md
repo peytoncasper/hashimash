@@ -122,8 +122,8 @@ Outputs:
 web-ui = 34.74.114.194
 ```
 
-The Terraform local-exec provisioner has also injected the GKE kubeconfig into your local kubeconfig which was used to setup
-the Consul and Vault helm charts. As a result, the output of kubectl get all should look something like this.
+Since the Terraform local-exec provider was utilized to inject the GKE cluster's kubeconfig into your environment, the 
+result of `kubectlget all` should look like this.
 
 ```
 pod/api-1-0-0                                                         1/1     Running   0          7m15s

@@ -60,6 +60,7 @@ resource "google_compute_firewall" "consul" {
 resource "null_resource" "kubectl" {
   triggers = {
     cluster = google_container_cluster.orchestrated_complexity.id
+    name = google_container_cluster.orchestrated_complexity.name
   }
 
   provisioner "local-exec" {
@@ -73,7 +74,7 @@ resource "null_resource" "kubectl" {
   provisioner "local-exec" {
     when       = destroy
     on_failure = continue
-    command    = "kubectl config get-clusters | grep ${google_container_cluster.orchestrated_complexity.name} | xargs -n1 kubectl config delete-cluster"
+    command    = "kubectl config get-clusters | grep ${self.triggers.name} | xargs -n1 kubectl config delete-cluster"
   }
 
 }
