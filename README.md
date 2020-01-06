@@ -1,3 +1,6 @@
+![alt-text](docs/example.gif)
+<img align="center" src="docs/example.gif" alt="example">
+
 # Prerequisites
 
 1. Docker: Packer creates two Docker images that contain the API and Web components
