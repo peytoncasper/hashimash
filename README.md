@@ -1,6 +1,6 @@
 <p align="center">
-# Hashimash
-<img align="center" src="docs/example.gif" alt="example">
+    <h1>Hashimash</h1>
+    <img align="center" src="docs/example.gif" alt="example"/>
 </p>
 
 # Prerequisites
