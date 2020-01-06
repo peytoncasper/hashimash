@@ -28,6 +28,8 @@ resource "google_compute_instance" "sensor" {
       consul kv put sensor/id ${count.index}
       consul kv put sensor/x_start 0
       consul kv put sensor/y_start 0
+      consul kv put sensor/vault_host vault-default.service.gcp.consul:8200
+      consul kv put sensor/vault_token root
       nomad job run /home/packer/sensor/sensor.nomad
     EOF
 

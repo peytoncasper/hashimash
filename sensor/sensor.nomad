@@ -15,6 +15,8 @@ job "sensor" {
         id="{{key "sensor/id"}}"
         x_start="{{key "sensor/x_start"}}"
         y_start="{{key "sensor/y_start"}}"
+        vault_host="{{key "sensor/vault_host"}}"
+        vault_token="{{key "sensor/vault_token"}}"
         EOH
         env = true
         destination = "local/env.txt"

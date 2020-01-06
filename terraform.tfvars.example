@@ -1,3 +1,0 @@
-google_project_id = "insert_project_id_here"
-google_kubernetes_engine_password = "Password1234!12312"
-gcp_service_account_path = "credentials/credentials.json"

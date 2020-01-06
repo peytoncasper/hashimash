@@ -31,6 +31,11 @@ module "consul" {
   kubeconfig_created = module.gcp.kubeconfig_created
 }
 
+module "vault" {
+  source = "./modules/vault"
+  kubeconfig_created = module.gcp.kubeconfig_created
+}
+
 module "api" {
   source = "./modules/api"
   google_project_id = var.google_project_id

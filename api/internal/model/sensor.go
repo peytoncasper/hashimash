@@ -10,4 +10,5 @@ type SensorReading struct {
 	ApiVersion    string   `json:"api_version"`
 	Id            string   `json:"id"`
 	Location      Location `json:"location"`
+	Token 		  string   `json:"token"`
 }

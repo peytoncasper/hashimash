@@ -20,7 +20,8 @@
     "webpack-dev-server": "^3.8.1",
     "webpack-merge": "^4.2.2",
     "axios": "^0.19.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "react-joyride": "^2.2.1"
   },
   "devDependencies": {
     "file-loader": "^4.2.0",

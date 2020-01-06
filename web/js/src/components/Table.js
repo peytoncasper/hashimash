@@ -68,6 +68,11 @@ export const Location = styled.td`
     height: 37px;
 `;
 
+export const Token = styled.td`
+    width: 155px;
+    height: 37px;
+`;
+
 
 class TableComponent extends React.Component {
 
@@ -90,11 +95,11 @@ class TableComponent extends React.Component {
     }
 
     render() {
-        return <Table>
+        return <Table className="table">
             <thead style={{color: "#ffffff", backgroundColor: "#2D3F5B"}}>
                 <tr>
-                    <th colSpan="4">
-                        <ColumnContainer style={{height: "24px", width: "236px"}}>
+                    <th colSpan="5">
+                        <ColumnContainer style={{height: "24px", width: "391px"}}>
                             Fleet
                         </ColumnContainer>
                     </th>
@@ -104,7 +109,7 @@ class TableComponent extends React.Component {
             {
                 Object.keys(this.props.sensorData).map((key, index) => {
                     return <Row key={index}>
-                        <ApiVersion >
+                        <ApiVersion className={("apiversion-" + index)}>
                             <ColumnContainer>
                                 <div style={{
                                     borderRadius: "50%",
@@ -126,7 +131,7 @@ class TableComponent extends React.Component {
                             </ColumnContainer>
                         </Icon>
                         <BinaryVersion>
-                            <ColumnContainer style={{color: "#ffffff"}}>
+                            <ColumnContainer className={("sensorversion-" + index)} style={{color: "#ffffff"}}>
                                 {this.props.sensorData[key][1]["sensor_version"]}
                                 {
                                     this.props.sensorData[key][1]["sensor_version"] === "1.0.0" ?
@@ -141,11 +146,16 @@ class TableComponent extends React.Component {
                                 }
                             </ColumnContainer>
                         </BinaryVersion>
-                        <Location>
+                        <Location className={("location-" + index)}>
                             <ColumnContainer style={{color: "#ffffff"}}>
                                 ({this.props.sensorData[key][1]["location"]["x"]}, {this.props.sensorData[key][1]["location"]["y"]})
                             </ColumnContainer>
                         </Location>
+                        <Token className={("secret-" + index)}>
+                            <ColumnContainer style={{color: "#ffffff"}}>
+                                {this.props.sensorData[key][1]["token"]}
+                            </ColumnContainer>
+                        </Token>
                     </Row>
                 })
             }

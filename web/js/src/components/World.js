@@ -10,11 +10,10 @@ export const Layer1 = styled.canvas`
 `;
 
 export const World = styled.div`
-  width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 1 0 auto;
 `;
 
 
@@ -203,7 +202,7 @@ class WorldComponent extends React.Component {
 
     render() {
         return <World>
-            <Layer1 id="layer1"/>
+            <Layer1 className="world"  id="layer1"/>
         </World>
     }
 }

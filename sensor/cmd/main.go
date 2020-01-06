@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/hashicorp/vault/api"
 	"log"
 	"math/rand"
 	"net/http"
@@ -21,6 +22,7 @@ type SensorReading struct {
 	ApiVersion    string   `json:"api_version"`
 	Id            string   `json:"id"`
 	Location      Location `json:"location"`
+	Token		  string   `json:"token"`
 }
 
 func main() {
@@ -35,6 +37,18 @@ func main() {
 	xStart := os.Getenv("x_start")
 	yStart := os.Getenv("y_start")
 
+	vaultHost := os.Getenv("vault_host")
+	vaultToken := os.Getenv("vault_token")
+
+	// Dont start sensor until API token is retrieved from Vault
+	apiToken, err := GetApiToken(vaultHost, vaultToken)
+	for err != nil {
+		log.Print("Error getting API token in Vault, trying again...")
+		time.Sleep(5 * time.Second)
+		apiToken, err = GetApiToken(vaultHost, vaultToken)
+	}
+
+
 	loc := Location{
 		X: xStart,
 		Y: yStart,
@@ -48,6 +62,7 @@ func main() {
 			ApiVersion:    "",
 			Id:            id,
 			Location:      loc,
+			Token: 		   apiToken,
 		}
 
 		possibleMoves := calculatePossibleMoves(loc)
@@ -58,20 +73,37 @@ func main() {
 			ApiVersion:    "",
 			Id:            id,
 			Location:      loc,
+			Token: 		   apiToken,
 		}
 
 		b, err := json.Marshal(payload)
 		if err != nil {
 			log.Print("Error encoding sensor reading: ", err)
 		} else {
-			_, err := http.Post(
+			client := http.Client{
+				Timeout: 5 * time.Second,
+			}
+
+			request, err := http.NewRequest(
+				http.MethodPost,
 				"http://"+apiHost+"/sensor",
-				"application/json",
 				bytes.NewBuffer(b),
 			)
+
+			if err != nil {
+				log.Print("Error creating sensor POST request: ", err)
+				return
+			}
+
+			request.Header.Set("Content-Type", "application/json")
+
+			_, err = client.Do(request)
+
 			if err != nil {
 				log.Print("Error sending sensor data: ", err)
 			}
+
+			client.CloseIdleConnections()
 		}
 
 		log.Print("Reading Sent: ", payload)
@@ -126,4 +158,32 @@ func calculatePossibleMoves(loc Location) []Location {
 	}
 
 	return moves
+}
+
+func GetApiToken(vaultHost string, vaultToken string) (string, error) {
+	var apiToken string
+
+	config := &api.Config{
+		Address: "http://" + vaultHost,
+	}
+	client, err := api.NewClient(config)
+	if err != nil {
+		log.Print("Error creating Vault Client Connection", err)
+		return apiToken, err
+	}
+
+	// Set Vault Authentication Token
+	client.SetToken(vaultToken)
+
+	// Register/Save Api Token Secret for Sensors to Fetch
+	secret, err := client.Logical().Read("secret/data/api_token")
+
+	if err != nil {
+		log.Print("Error getting api_token secret from Vault", err, secret)
+		return apiToken, err
+	}
+
+	secretData := secret.Data["data"].(map[string]interface{})
+
+	return secretData["value"].(string), nil
 }

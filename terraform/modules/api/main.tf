@@ -4,6 +4,8 @@ resource "kubernetes_pod" "api_1_0_0" {
     labels = {
       app = "api-1-0-0"
     }
+    annotations = {
+    }
   }
 
   spec {
@@ -16,8 +18,20 @@ resource "kubernetes_pod" "api_1_0_0" {
         value = "1.0.0"
       }
       env {
-        name = "consulHost"
+        name = "consul_host"
         value = "consul.service.gcp.consul"
+      }
+      env {
+        name = "vault_host"
+        value = "vault-default.service.gcp.consul:8200"
+      }
+      env {
+        name = "vault_token"
+        value = "root"
+      }
+      env {
+        name = "api_token"
+        value = "0z7uw5zfMIpZMp5h"
       }
       port {
         name = "http"
@@ -33,7 +47,7 @@ resource "kubernetes_service" "api_svc_1_0_0" {
     name = "api-1-0-0-svc"
     annotations = {
       "consul.hashicorp.com/service-name" = "api"
-      "consul.hashicorp.com/service-tags": "1.0.0"
+      "consul.hashicorp.com/service-tags" = "1.0.0"
     }
   }
 
@@ -67,8 +81,20 @@ resource "kubernetes_pod" "api_1_0_1" {
         value = "1.0.1"
       }
       env {
-        name = "consulHost"
+        name = "consul_host"
         value = "consul.service.gcp.consul"
+      }
+      env {
+        name = "vault_host"
+        value = "vault-default.service.gcp.consul:8200"
+      }
+      env {
+        name = "vault_token"
+        value = "root"
+      }
+      env {
+        name = "api_token"
+        value = "0z7uw5zfMIpZMp5h"
       }
       port {
         name = "http"
@@ -82,11 +108,13 @@ resource "kubernetes_pod" "api_1_0_1" {
 resource "kubernetes_service" "api_svc_1_0_1" {
   metadata {
     name = "api-svc-1-0-1"
+
     annotations = {
       "consul.hashicorp.com/service-name" = "api"
-      "consul.hashicorp.com/service-tags": "1.0.1"
+      "consul.hashicorp.com/service-tags" = "1.0.1"
     }
   }
+
 
   spec {
     selector = {
