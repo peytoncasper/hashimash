@@ -1,5 +1,6 @@
+<h1 align="center">Hashimash</h1>
+
 <p align="center">
-    <h1>Hashimash</h1>
     <img align="center" src="docs/example.gif" alt="example"/>
 </p>
 
