@@ -74,7 +74,7 @@ resource "null_resource" "kubectl" {
   provisioner "local-exec" {
     when       = destroy
     on_failure = continue
-    command    = "kubectl config get-clusters | grep ${self.triggers.name} | xargs -n1 kubectl config delete-cluster"
+    command    = "kubectl config get-clusters | grep orchestrated-complexity | xargs -n1 kubectl config delete-cluster"
   }
 
 }

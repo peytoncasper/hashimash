@@ -1,8 +1,3 @@
-provider "azurerm" {
-    subscription_id = var.azure_subscription_id
-    version = "=1.38.0"
-}
-
 provider "google" {
   project = var.google_project_id
   credentials = file(var.gcp_service_account_path)
