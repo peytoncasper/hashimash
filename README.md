@@ -4,6 +4,12 @@
     <img align="center" src="docs/example.gif" alt="example"/>
 </p>
 
+# What is this and Why?
+
+TLDR: I had some spare time over the holidays and was looking to learn the HashiCorp product lineup including Terraform, Consul, Nomad, Vault and Packer. So I decided to create a scenario and build an side project to solve that problem. HashiMash is effectively a super simple fleet management demo that builds ontop of Consul, Nomad and Vault to connect distributed sensors with a centralized backend running in Kubernetes.
+
+Longer Intro: https://medium.com/@peytoncasper/hashimash-exploring-consul-vault-nomad-and-terraform-for-edge-computing-part-1-dd20ed1101ce
+
 # Prerequisites
 
 1. Docker: Packer creates two Docker images that contain the API and Web components
